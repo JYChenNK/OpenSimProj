@@ -1,11 +1,11 @@
-function data = AFODataLoading(pathname,filename)
+function data = LOADandFILTER(pathname,filename,CutOffFreq)
 
 %% PROCESS RAW DATA (FROM CONTROLDESK)
 % clear;
 % pathname = 'C:\Users\dell\Documents\OpenSim\4.1\20210318\GRF_MAT_File\';
 % filename = 'LX_20210318_003.mat'; 
 
-a = sprintf('Processing raw data...'); disp(a);
+% a = sprintf('Processing raw data...'); disp(a);
 % eval(['load(''' filename '.mat'');']); %load the data file
 str = [pathname filename];
 load(str);
@@ -46,10 +46,13 @@ for i = 1:length(ydata) %parse through ydata
     if namestr(end) == '_'
         namestr = namestr(1:end-1);
     end
-    
-    eval([namestr ' = ydata(' num2str(i) ').Data;']);
+    if strcmp(namestr, 'Syn')
+        eval([namestr ' = ydata(' num2str(i) ').Data;']);
+    else
+        eval([namestr ' = filter(Lowpass' num2str(CutOffFreq) ',ydata(' num2str(i) ').Data);']);
+    end
     if eval(['length(' namestr ') ~= length(time)'])
-        eval([namestr '=double(' namestr ');']);
+        eval([namestr '= double(' namestr ');']);
         eval([namestr ' = ones(1,length(time))*' namestr '(1);']);
     end
     eval(['data.',namestr,' = ',namestr,';']);
